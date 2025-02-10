@@ -12,7 +12,6 @@ import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @Entity
 @Table(name = "reservations")
-@Transactional(REQUIRED)
 public class ReserveEntity extends PanacheEntityBase {
 
     @Id
@@ -40,7 +39,6 @@ public class ReserveEntity extends PanacheEntityBase {
         return user_id;
     }
 
-    @Transactional
     public void setUser_id(UUID user_id) {
         this.user_id = user_id;
     }
@@ -49,7 +47,6 @@ public class ReserveEntity extends PanacheEntityBase {
         return book_id;
     }
 
-    @Transactional
     public void setBook_id(UUID book_id) {
         this.book_id = book_id;
     }
@@ -58,7 +55,6 @@ public class ReserveEntity extends PanacheEntityBase {
         return reservation_date;
     }
 
-    @Transactional
     public void setReservation_date(LocalDate reservation_date) {
         this.reservation_date = reservation_date;
     }
@@ -67,7 +63,6 @@ public class ReserveEntity extends PanacheEntityBase {
         return status;
     }
 
-    @Transactional
     public void setStatus(ReserveStatus status) {
         this.status = status;
     }

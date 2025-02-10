@@ -12,7 +12,6 @@ import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @Entity
 @Table(name = "loans")
-@Transactional(REQUIRED)
 public class LoanEntity extends PanacheEntityBase {
 
     @Id
@@ -50,7 +49,6 @@ public class LoanEntity extends PanacheEntityBase {
         return book_id;
     }
 
-    @Transactional
     public void setBook_id(UUID book_id) {
         this.book_id = book_id;
     }
@@ -59,7 +57,6 @@ public class LoanEntity extends PanacheEntityBase {
         return user_id;
     }
 
-    @Transactional
     public void setUser_id(UUID user_id) {
         this.user_id = user_id;
     }
@@ -68,7 +65,6 @@ public class LoanEntity extends PanacheEntityBase {
         return loan_date;
     }
 
-    @Transactional
     public void setLoan_date(LocalDate loan_date) {
         this.loan_date = loan_date;
     }
@@ -77,17 +73,14 @@ public class LoanEntity extends PanacheEntityBase {
         return due_date;
     }
 
-    @Transactional
     public void setDue_date(LocalDate due_date) {
         this.due_date = due_date;
     }
 
-    @Transactional
     public LoanStatus getStatus() {
         return status;
     }
 
-    @Transactional
     public void setStatus(LoanStatus status) {
         this.status = status;
     }

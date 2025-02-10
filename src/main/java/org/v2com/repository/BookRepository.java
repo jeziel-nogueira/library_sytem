@@ -53,13 +53,13 @@ public class BookRepository {
     public List<BookEntity> findBooksByArgs(String title, String author, String tag) {
         StringBuilder queryBuilder = new StringBuilder("SELECT b FROM BookEntity b WHERE 1=1");
         if (title != null && !title.isEmpty()) {
-            queryBuilder.append(" AND b.title LIKE :title");
+            queryBuilder.append(" OR b.title LIKE :title");
         }
         if (author != null && !author.isEmpty()) {
-            queryBuilder.append(" AND b.author LIKE :author");
+            queryBuilder.append(" OR b.author LIKE :author");
         }
         if (tag != null && !tag.isEmpty()) {
-            queryBuilder.append(" AND b.tags LIKE :tag");
+            queryBuilder.append(" OR b.tags LIKE :tag");
         }
 
         Query query = entityManager.createQuery(queryBuilder.toString());

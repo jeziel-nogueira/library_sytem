@@ -14,7 +14,6 @@ import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @Entity
 @Table(name = "books")
-@Transactional(REQUIRED)
 public class BookEntity extends PanacheEntityBase {
 
     @Id
@@ -56,46 +55,37 @@ public class BookEntity extends PanacheEntityBase {
 
     public String getTitle() { return title; }
 
-    @Transactional
     public void setTitle(String title) { this.title = title; }
 
     public String getAuthor() { return author; }
 
-    @Transactional
     public void setAuthor(String author) { this.author = author; }
 
     public String getDescription() { return description; }
 
-    @Transactional
     public void setDescription(String description) { this.description = description; }
 
     public String getGenre() { return genre; }
 
-    @Transactional
     public void setGenre(String genre) { this.genre = genre; }
 
     public String getIsbn() { return isbn; }
 
-    @Transactional
     public void setIsbn(String isbn) { this.isbn = isbn; }
 
     public String getPublisher() { return publisher; }
 
-    @Transactional
     public void setPublisher(String publisher) { this.publisher = publisher; }
 
     public String getTags() { return tags; }
 
-    @Transactional
     public void setTags(String tags) { this.tags = tags; }
 
     public String getCoverUrl() { return coverUrl; }
 
-    @Transactional
     public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
 
     public BookStatus getStatus() { return status; }
 
-    @Transactional
     public void setStatus(BookStatus status) { this.status = status; }
 }

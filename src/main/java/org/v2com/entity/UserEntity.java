@@ -14,7 +14,6 @@ import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @Entity
 @Table(name = "users")
-@Transactional(REQUIRED)
 public class UserEntity extends PanacheEntityBase {
 
     @Id
@@ -52,37 +51,30 @@ public class UserEntity extends PanacheEntityBase {
 
     public UserStatus getStatus() { return Status;}
 
-    @Transactional
     public void setStatus(UserStatus status) { Status = status;}
 
     public UUID getId() { return id; }
 
-    @Transactional
     public void setId(UUID id) { this.id = id; }
 
     public String getName() { return name; }
 
-    @Transactional
     public void setName(String name) { this.name = name; }
 
     public String getEmail() { return email; }
 
-    @Transactional
     public void setEmail(String email) { this.email = email; }
 
     public String getAddress() { return address; }
 
-    @Transactional
     public void setAddress(String address) { this.address = address; }
 
     public String getPhone() { return phone; }
 
-    @Transactional
     public void setPhone(String phone) { this.phone = phone; }
 
     public String getPassword() { return password; }
 
-    @Transactional
     public void setPassword(String password) { this.password = password; }
 
 }

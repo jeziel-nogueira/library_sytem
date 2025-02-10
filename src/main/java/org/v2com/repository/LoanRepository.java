@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.v2com.Enums.LoanStatus;
 import org.v2com.entity.LoanEntity;
 
@@ -19,14 +20,17 @@ public class LoanRepository {
     @Inject
     EntityManager entityManager;
 
-    public void persist(Object entity) {
+    public void persist(LoanEntity entity) {
         entityManager.persist(entity);
     }
+
     public LoanEntity findLoanById(UUID id) {
         return entityManager.find(LoanEntity.class, id);
     }
-    public void update(Object entity) {
+
+    public void update(@Valid LoanEntity entity) {
         entityManager.merge(entity);
+        entityManager.flush();
     }
 
     public List<LoanEntity> getAllLoans(){

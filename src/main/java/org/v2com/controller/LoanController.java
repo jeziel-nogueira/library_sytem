@@ -18,25 +18,25 @@ public class LoanController {
 
     @GET
     @Path("/")
-    public Response getAllLoans(){
+    public Response getAllLoans() throws Exception {
         return Response.ok(loanService.getAllLoans()).build();
     }
 
     @GET
     @Path("/id/{id}")
-    public Response getLoanById(@PathParam("id")UUID loanId){
+    public Response getLoanById(@PathParam("id")UUID loanId) throws Exception {
         return Response.ok(loanService.getLoanById(loanId)).build();
     }
 
     @GET
     @Path("/user/{id}")
-    public Response getActiveLoansByUserId(@PathParam("id")UUID userId){
+    public Response getActiveLoansByUserId(@PathParam("id")UUID userId) throws Exception {
         return Response.ok(loanService.getActiveLoansByUserId(userId)).build();
     }
 
     @GET
     @Path("/book/{id}")
-    public Response getLoanByBookId(@PathParam("id")UUID book){
+    public Response getLoanByBookId(@PathParam("id")UUID book) throws Exception {
         return Response.ok(loanService.getActiveLoanByBookId(book)).build();
     }
 
@@ -56,7 +56,7 @@ public class LoanController {
 
     @PUT
     @Path("/renew/{id}")
-    public Response renewBookLoan(@PathParam("id")UUID loanId) {
+    public Response renewBookLoan(@PathParam("id")UUID loanId) throws Exception {
         loanService.renewBookLoan(loanId, 14);
         return Response.status(Response.Status.NO_CONTENT).build();
     }

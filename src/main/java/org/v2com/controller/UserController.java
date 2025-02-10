@@ -17,7 +17,7 @@ public class UserController {
 
     @GET
     @Path("/")
-    public Response getAllUsers(){
+    public Response getAllUsers() throws Exception {
         List<UserDTO> users = userService.listAllUsers();
         return users != null || users.isEmpty()
                 ? Response.ok(users).build()
@@ -26,28 +26,28 @@ public class UserController {
 
     @GET
     @Path("/id/{id}")
-    public Response getUserById(@PathParam("id")UUID userId){
+    public Response getUserById(@PathParam("id")UUID userId) throws Exception {
         UserDTO user = userService.findUserById(userId);
         return Response.ok(user).build();
     }
 
     @GET
     @Path("/name/{name}")
-    public Response getUserByname(@PathParam("name")String userName){
+    public Response getUserByname(@PathParam("name")String userName) throws Exception {
         UserDTO user = userService.finUserByName(userName);
         return Response.ok(user).build();
     }
 
     @POST
     @Path("/register")
-    public Response createUser(@Valid UserDTO userDTO){
+    public Response createUser(@Valid UserDTO userDTO) throws Exception {
         UserDTO newUser = userService.addUser(userDTO);
         return Response.ok(newUser).build();
     }
 
     @PUT
     @Path("/update")
-    public Response updateUser(@Valid UserDTO userDTO){
+    public Response updateUser(@Valid UserDTO userDTO) throws Exception {
         return Response.ok(userService.updateUser(userDTO)).build();
     }
 

@@ -24,50 +24,70 @@ public class UserService {
     UserRepository userRepository;
 
     @Transactional
-    public List<UserDTO> listAllUsers() {
-        return userRepository.getAllUsers().stream()
-                .map(UserDTO::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    public UserDTO findUserById(UUID id) {
-        UserEntity userEntity = userRepository.findById(id);
-        if (userEntity == null){
-            throw new IllegalArgumentException("Usuario não encontrado para o ID fornecido");
+    public List<UserDTO> listAllUsers() throws Exception {
+        try {
+            return userRepository.getAllUsers().stream()
+                    .map(UserDTO::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new Exception("Erro ao listar usuarios");
         }
-        return UserDTO.fromEntity(userEntity);
     }
 
-    public UserDTO finUserByName(String name){
-        UserEntity user = userRepository.findByName(name);
-        if (user == null) {
-            throw new IllegalArgumentException("Usuário não encontrado para o nome fornecido.");
+    public UserDTO findUserById(UUID id) throws Exception {
+        try {
+            UserEntity userEntity = userRepository.findById(id);
+            if (userEntity == null){
+                throw new Exception("Usuario não encontrado para o ID fornecido");
+            }
+            return UserDTO.fromEntity(userEntity);
+        } catch (Exception e) {
+            throw new Exception("Erro ao encontrar um usuario");
         }
-        return UserDTO.fromEntity(user);
     }
 
-    public UserDTO addUser(@Valid UserDTO userDTO) {
-        UserEntity userEntity = userDTO.toEntity();
-        userRepository.persist(userEntity);
-        return UserDTO.fromEntity(userEntity);
+    public UserDTO finUserByName(String name) throws Exception {
+        try {
+            UserEntity user = userRepository.findByName(name);
+            if (user == null) {
+                throw new Exception("Usuário não encontrado para o nome fornecido.");
+            }
+            return UserDTO.fromEntity(user);
+        } catch (Exception e) {
+            throw new Exception("Erro ao encontrar um usuario");
+        }
+    }
+
+    public UserDTO addUser(@Valid UserDTO userDTO) throws Exception {
+        try {
+            UserEntity userEntity = userDTO.toEntity();
+            userRepository.persist(userEntity);
+            return UserDTO.fromEntity(userEntity);
+        } catch (Exception e) {
+            throw new Exception("Erro ao adicionar um usuario");
+        }
     }
 
     @Transactional
-    public UserDTO updateUser(@Valid UserDTO userDTO) {
-        UserEntity existingUser = userRepository.findById(userDTO.getId());
+    public UserDTO updateUser(@Valid UserDTO userDTO) throws Exception {
+        try {
+            UserEntity existingUser = userRepository.findById(userDTO.getId());
 
-        if (existingUser == null) {
-            throw new IllegalArgumentException("Usuário não encontrado para o ID fornecido.");
+            if (existingUser == null) {
+                throw new IllegalArgumentException("Usuário não encontrado para o ID fornecido.");
+            }
+
+            existingUser.setName(userDTO.getName());
+            existingUser.setAddress(userDTO.getAddress());
+            existingUser.setEmail(userDTO.getEmail());
+            existingUser.setPhone(userDTO.getPhone());
+            existingUser.setStatus(userDTO.getStatus());
+
+            userRepository.persist(existingUser);
+            return UserDTO.fromEntity(existingUser);
+        } catch (Exception e) {
+            throw new Exception("Erro ao atualizar usuario.");
         }
-
-        existingUser.setName(userDTO.getName());
-        existingUser.setAddress(userDTO.getAddress());
-        existingUser.setEmail(userDTO.getEmail());
-        existingUser.setPhone(userDTO.getPhone());
-        existingUser.setStatus(userDTO.getStatus());
-
-        userRepository.persist(existingUser);
-        return UserDTO.fromEntity(existingUser);
     }
 
     public void deleteUserById(UUID id){

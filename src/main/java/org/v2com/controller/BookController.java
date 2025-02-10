@@ -17,13 +17,13 @@ public class BookController {
 
     @GET
     @Path("")
-    public Response getAllBooks(){
+    public Response getAllBooks() throws Exception {
         return Response.ok(bookService.findAllBooks()).build();
     }
 
     @GET
     @Path("/id/{id}")
-    public Response getBookById(@PathParam("id")UUID bookId){
+    public Response getBookById(@PathParam("id")UUID bookId) throws Exception {
         return Response.ok(bookService.findBookById(bookId)).build();
     }
 
@@ -32,27 +32,28 @@ public class BookController {
     public Response searchBookByArgs(
             @QueryParam("title") String title,
             @QueryParam("author") String author,
-            @QueryParam("tag") String tag){
+            @QueryParam("tag") String tag) throws Exception {
+
         return Response.ok(bookService.searchBooksByArgs(title, author, tag)).build();
     }
 
     @POST
     @Path("/register")
-    public Response registerNewBook(@Valid BookDTO bookDTO){
+    public Response registerNewBook(@Valid BookDTO bookDTO) throws Exception {
         bookService.persistBook(bookDTO);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @PUT
     @Path("/update")
-    public Response updateBook(@Valid BookDTO bookDTO){
+    public Response updateBook(@Valid BookDTO bookDTO) throws Exception {
         BookDTO newBookDTO = bookService.updateBook(bookDTO);
         return Response.ok(newBookDTO).build();
     }
 
     @DELETE
     @Path("/delete/{id}")
-    public Response deleteBook(@PathParam("id") UUID bookId){
+    public Response deleteBook(@PathParam("id") UUID bookId) throws Exception {
         bookService.deleteBook(bookId);
         return Response.status(Response.Status.NO_CONTENT).build();
     }

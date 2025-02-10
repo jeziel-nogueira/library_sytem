@@ -16,25 +16,25 @@ public class ReserveController {
 
     @GET
     @Path("/")
-    public Response getAllReserves(){
+    public Response getAllReserves() throws Exception {
         return Response.ok(reserveService.getAllReservations()).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response getReserveById(@PathParam("id")UUID reserveId){
+    public Response getReserveById(@PathParam("id")UUID reserveId) throws Exception {
         return Response.ok(reserveService.getReserveById(reserveId)).build();
     }
 
     @GET
     @Path("/book/{id}")
-    public Response getActiveReserveByBookId(@PathParam("id")UUID bookId){
+    public Response getActiveReserveByBookId(@PathParam("id")UUID bookId) throws Exception {
         return Response.ok(reserveService.getActiveReserveByBookId(bookId)).build();
     }
 
     @GET
     @Path("/user/{id}")
-    public Response getActiveReserveByUserId(@PathParam("id")UUID userId){
+    public Response getActiveReserveByUserId(@PathParam("id")UUID userId) throws Exception {
         return Response.ok(reserveService.getActiveReserveByUserId(userId)).build();
     }
 
@@ -46,7 +46,7 @@ public class ReserveController {
 
     @PUT
     @Path("/")
-    public Response changeReserveStatus(@QueryParam("reserveId") UUID reserveId, @QueryParam("status") ReserveStatus status){
+    public Response changeReserveStatus(@QueryParam("reserveId") UUID reserveId, @QueryParam("status") ReserveStatus status) throws Exception {
         return Response.ok(reserveService.changeReserveStatus(reserveId, status)).build();
     }
 }
