@@ -5,9 +5,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.v2com.Enums.UserStatus;
 import org.v2com.dto.UserDTO;
 import org.v2com.entity.UserEntity;
+import org.v2com.exceptions.UserNotFoundException;
 import org.v2com.repository.UserRepository;
 
 import java.util.List;
@@ -30,19 +30,21 @@ public class UserService {
                     .map(UserDTO::fromEntity)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new Exception("Erro ao listar usuarios");
+            throw new Exception(e.getMessage());
         }
     }
 
     public UserDTO findUserById(UUID id) throws Exception {
         try {
             UserEntity userEntity = userRepository.findById(id);
-            if (userEntity == null){
-                throw new Exception("Usuario não encontrado para o ID fornecido");
+            if (userEntity == null) {
+                throw new UserNotFoundException(id.toString());
             }
             return UserDTO.fromEntity(userEntity);
+        } catch (UserNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao encontrar um usuario");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -50,11 +52,13 @@ public class UserService {
         try {
             UserEntity user = userRepository.findByName(name);
             if (user == null) {
-                throw new Exception("Usuário não encontrado para o nome fornecido.");
+                throw new UserNotFoundException("");
             }
             return UserDTO.fromEntity(user);
+        }catch (UserNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao encontrar um usuario");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -64,7 +68,7 @@ public class UserService {
             userRepository.persist(userEntity);
             return UserDTO.fromEntity(userEntity);
         } catch (Exception e) {
-            throw new Exception("Erro ao adicionar um usuario");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -74,7 +78,7 @@ public class UserService {
             UserEntity existingUser = userRepository.findById(userDTO.getId());
 
             if (existingUser == null) {
-                throw new IllegalArgumentException("Usuário não encontrado para o ID fornecido.");
+                throw new UserNotFoundException("");
             }
 
             existingUser.setName(userDTO.getName());
@@ -85,17 +89,25 @@ public class UserService {
 
             userRepository.persist(existingUser);
             return UserDTO.fromEntity(existingUser);
+        } catch (UserNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao atualizar usuario.");
+            throw new Exception(e.getMessage());
         }
     }
 
-    public void deleteUserById(UUID id){
-        UserEntity existingUser = userRepository.findById(id);
+    public void deleteUserById(UUID id) throws Exception {
+        try {
+            UserEntity existingUser = userRepository.findById(id);
 
-        if (existingUser == null) {
-            throw new IllegalArgumentException("Usuário não encontrado para o ID fornecido.");
+            if (existingUser == null) {
+                throw new UserNotFoundException(id.toString());
+            }
+            userRepository.deleteUserById(id);
+        }catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        userRepository.deleteUserById(id);
     }
 }

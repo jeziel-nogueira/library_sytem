@@ -19,7 +19,7 @@ public class UserController {
     @Path("/")
     public Response getAllUsers() throws Exception {
         List<UserDTO> users = userService.listAllUsers();
-        return users != null || users.isEmpty()
+        return users.isEmpty()
                 ? Response.ok(users).build()
                 : Response.status(Response.Status.NO_CONTENT).build();
     }
@@ -53,7 +53,7 @@ public class UserController {
 
     @DELETE
     @Path("/{id}")
-    public Response deleUserById(@PathParam("id") UUID userId){
+    public Response deleUserById(@PathParam("id") UUID userId) throws Exception {
         userService.deleteUserById(userId);
         return Response.status(Response.Status.NO_CONTENT).build();
     }

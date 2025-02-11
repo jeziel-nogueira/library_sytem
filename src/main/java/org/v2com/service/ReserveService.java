@@ -10,6 +10,7 @@ import org.v2com.dto.ReservationDTO;
 import org.v2com.entity.BookEntity;
 import org.v2com.entity.ReserveEntity;
 import org.v2com.entity.UserEntity;
+import org.v2com.exceptions.*;
 import org.v2com.repository.BookRepository;
 import org.v2com.repository.LoanRepository;
 import org.v2com.repository.ReserveRepository;
@@ -44,19 +45,21 @@ public class ReserveService {
                     .map(ReservationDTO::fromEntity)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new Exception("Erro listar livros.");
+            throw new Exception(e.getMessage());
         }
     }
 
-    public ReservationDTO getReserveById(UUID reserId) throws Exception {
+    public ReservationDTO getReserveById(UUID reserveId) throws Exception {
         try {
-            ReservationDTO reservationDTO = ReservationDTO.fromEntity(reserveRepository.findActiveReserveById(reserId));
+            ReservationDTO reservationDTO = ReservationDTO.fromEntity(reserveRepository.findActiveReserveById(reserveId));
             if (reservationDTO == null) {
-                throw new Exception("Reserva não encontrada");
+                throw new ReserveNotFoundException(reserveId.toString());
             }
             return reservationDTO;
+        } catch (ReserveNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao buscar por reserva");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -64,11 +67,13 @@ public class ReserveService {
         try {
             ReservationDTO reservationDTO = ReservationDTO.fromEntity(reserveRepository.findActiveReserveByBookId(bookId));
             if (reservationDTO == null) {
-                throw new Exception("Erro ao buscar por reserva");
+                throw new ReserveNotFoundException("");
             }
             return reservationDTO;
+        } catch (ReserveNotFoundException ex){
+            throw ex;
         } catch (Exception e) {
-            throw new Exception("Erro ao buscar por reserva");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -80,7 +85,7 @@ public class ReserveService {
 
             return reservationDTOS;
         }catch (Exception e) {
-            throw new Exception("Erro ao Listar por reservas");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -91,23 +96,22 @@ public class ReserveService {
             BookEntity bookEntity = bookRepository.findById(bookId);
             UserEntity userEntity = userRepository.findById(userId);
 
-            if(reserveRepository.findActiveReserveByBookId(bookId) != null){
-                throw new IllegalArgumentException("Livro possui já uma reserva.");
+            if (bookEntity == null) {
+                throw new BookNotFoundException();
+            }
+            if (reserveRepository.findActiveReserveByBookId(bookId) != null ||
+                    bookEntity.getStatus() == BookStatus.AVAILABLE
+            ) {
+                throw new BookUnavailableToReserveException(bookId.toString());
             }
 
-            if (bookEntity == null) {
-                throw new IllegalArgumentException("Livro não encontrado.");
-            }
-            if (bookEntity.getStatus() == BookStatus.AVAILABLE) {
-                throw new IllegalArgumentException("Livro disponivel para empréstimo.");
-            }
+
             if (userEntity == null) {
-                throw new IllegalArgumentException("Usuário não encontrado.");
+                throw new UserNotFoundException(userId.toString());
             }
             if (userEntity.getStatus() != UserStatus.ACTIVE) {
-                throw new IllegalArgumentException("Usuario inativo.");
+                throw new UserInactiveException(userId.toString());
             }
-
 
 
             ReserveEntity reserveEntity = new ReserveEntity();
@@ -117,8 +121,13 @@ public class ReserveService {
             reserveEntity.setStatus(ReserveStatus.PENDING);
 
             return ReservationDTO.fromEntity(reserveEntity);
+        } catch (BookUnavailableToReserveException
+                 | UserInactiveException
+                 | UserNotFoundException
+                 | BookNotFoundException ex) {
+            throw ex;
         } catch (Exception e) {
-            throw new Exception("Erro ao cadastrar reserva.");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -127,11 +136,13 @@ public class ReserveService {
         try {
             ReservationDTO reservationDTO = ReservationDTO.fromEntity(reserveRepository.changeReservationStatus(id, status));
             if (reservationDTO == null) {
-                throw new IllegalArgumentException("Reserva não encontrada");
+                throw new ReserveNotFoundException(id.toString());
             }
             return reservationDTO;
+        }catch (ReserveNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("");
+            throw new Exception(e.getMessage());
         }
     }
 }

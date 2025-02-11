@@ -4,11 +4,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.v2com.Enums.BookStatus;
 import org.v2com.entity.BookEntity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static jakarta.transaction.Transactional.TxType.REQUIRED;
@@ -21,12 +24,7 @@ public class BookRepository {
     EntityManager entityManager;
 
     public BookEntity findById(UUID id) {
-        try {
-            return entityManager.find(BookEntity.class, id);
-        } catch (Exception e) {
-            return null;
-        }
-
+        return entityManager.find(BookEntity.class, id);
     }
 
     public List<BookEntity> findAllBooks() {
@@ -52,29 +50,37 @@ public class BookRepository {
 
     public List<BookEntity> findBooksByArgs(String title, String author, String tag) {
         StringBuilder queryBuilder = new StringBuilder("SELECT b FROM BookEntity b WHERE 1=1");
+        Map<String, Object> params = new HashMap<>();
+
         if (title != null && !title.isEmpty()) {
-            queryBuilder.append(" OR b.title LIKE :title");
+            queryBuilder.append(" AND LOWER(b.title) LIKE :title");
+            params.put("title", "%" + title.toLowerCase() + "%");
         }
         if (author != null && !author.isEmpty()) {
-            queryBuilder.append(" OR b.author LIKE :author");
+            queryBuilder.append(" AND LOWER(b.author) LIKE :author");
+            params.put("author", "%" + author.toLowerCase() + "%");
         }
         if (tag != null && !tag.isEmpty()) {
-            queryBuilder.append(" OR b.tags LIKE :tag");
+            queryBuilder.append(" AND LOWER(b.tags) LIKE :tag");
+            params.put("tag", "%" + tag.toLowerCase() + "%");
         }
 
-        Query query = entityManager.createQuery(queryBuilder.toString());
-        if (title != null && !title.isEmpty()) {
-            query.setParameter("title", "%" + title + "%");
+        TypedQuery<BookEntity> query = entityManager.createQuery(queryBuilder.toString(), BookEntity.class);
+
+        // Substituir os parâmetros
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
         }
-        if (author != null && !author.isEmpty()) {
-            query.setParameter("author", "%" + author + "%");
-        }
-        if (tag != null && !tag.isEmpty()) {
-            query.setParameter("tag", "%" + tag + "%");
-        }
+
+        // Log da query final com valores reais
+        System.out.println("Query Final: " + queryBuilder);
+        System.out.println("Parâmetros: " + params);
 
         return query.getResultList();
     }
+
+
+
 
     public void changeBookStatus(BookEntity bookEntity, BookStatus status){
         bookEntity = findById(bookEntity.id);

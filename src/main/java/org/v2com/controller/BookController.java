@@ -40,15 +40,15 @@ public class BookController {
     @POST
     @Path("/register")
     public Response registerNewBook(@Valid BookDTO bookDTO) throws Exception {
-        bookService.persistBook(bookDTO);
-        return Response.status(Response.Status.NO_CONTENT).build();
+        bookDTO = bookService.persistBook(bookDTO);
+        return Response.ok(bookDTO).build();
     }
 
     @PUT
     @Path("/update")
     public Response updateBook(@Valid BookDTO bookDTO) throws Exception {
-        BookDTO newBookDTO = bookService.updateBook(bookDTO);
-        return Response.ok(newBookDTO).build();
+        bookService.updateBook(bookDTO);
+        return Response.ok().build();
     }
 
     @DELETE

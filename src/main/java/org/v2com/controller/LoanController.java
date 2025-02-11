@@ -1,10 +1,8 @@
 package org.v2com.controller;
 
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import org.v2com.dto.LoanDTO;
 import org.v2com.service.LoanService;
 
 import java.util.UUID;
@@ -30,8 +28,8 @@ public class LoanController {
 
     @GET
     @Path("/user/{id}")
-    public Response getActiveLoansByUserId(@PathParam("id")UUID userId) throws Exception {
-        return Response.ok(loanService.getActiveLoansByUserId(userId)).build();
+    public Response getLoansByUserId(@PathParam("id")UUID userId) throws Exception {
+        return Response.ok(loanService.getLoansByUserId(userId)).build();
     }
 
     @GET

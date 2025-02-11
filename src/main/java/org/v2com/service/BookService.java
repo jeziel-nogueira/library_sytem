@@ -4,6 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import org.v2com.dto.BookDTO;
 import org.v2com.entity.BookEntity;
+import org.v2com.exceptions.BookNotFoundException;
+import org.v2com.exceptions.DataPersistException;
 import org.v2com.repository.BookRepository;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class BookService {
     public List<BookDTO> findAllBooks() throws Exception {
         List<BookDTO> books = bookRepository.findAllBooks().stream().map(BookDTO::fromEntity).collect(Collectors.toList());
         if (books.isEmpty()) {
-            throw new IllegalArgumentException("Nemhum livro encontrado");
+            throw new BookNotFoundException();
         }
         return books;
     }
@@ -33,11 +35,13 @@ public class BookService {
         try {
             BookEntity book = repository.findById(id);
             if (book == null) {
-                throw new IllegalArgumentException("Livro nao encontrado para o ID fornecido.");
+                throw new BookNotFoundException();
             }
             return BookDTO.fromEntity(book);
+        } catch (BookNotFoundException ex) {
+            throw ex;
         } catch (Exception e) {
-            throw new Exception("Erro ao realizar busca.", e);
+            throw new Exception(e);
         }
     }
 
@@ -46,12 +50,14 @@ public class BookService {
             List<BookDTO> bookDTOS = repository.findBooksByArgs(title, author, tag).stream()
                     .map(BookDTO::fromEntity)
                     .collect(Collectors.toList());
-            if(bookDTOS == null || bookDTOS.isEmpty()){
-                throw new IllegalArgumentException("Nemhum resultado para a pesquisa");
+            if (bookDTOS == null || bookDTOS.isEmpty()) {
+                throw new BookNotFoundException();
             }
             return bookDTOS;
+        } catch (BookNotFoundException ex) {
+            throw ex;
         } catch (Exception e) {
-            throw new Exception("Erro ao realizar busca.", e);
+            throw new Exception(e);
         }
     }
 
@@ -62,30 +68,40 @@ public class BookService {
             repository.persist(bookEntity);
             return BookDTO.fromEntity(bookEntity);
         } catch (Exception e) {
-            throw new Exception("Erro ao registrar", e);
+            throw new DataPersistException();
         }
     }
 
     public BookDTO updateBook(@Valid BookDTO bookDTO) throws Exception {
-        BookEntity existingBookEntity = repository.findById(bookDTO.getId());
 
-        if (existingBookEntity == null) {
-            throw new IllegalArgumentException("Livro nao encontrado para o ID fornecido.");
-        }
         try {
+            BookEntity existingBookEntity = repository.findById(bookDTO.getId());
+
+            if (existingBookEntity == null) {
+                throw new BookNotFoundException();
+            }
+
             bookRepository.updateBook(bookDTO.toEntity(), existingBookEntity);
 
             return BookDTO.fromEntity(existingBookEntity);
+        } catch (BookNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao atualizar", e);
+            throw new DataPersistException();
         }
     }
 
     public void deleteBook(UUID id) throws Exception {
         try {
+            BookEntity bookEntity = repository.findById(id);
+            if (bookEntity == null) {
+                throw new BookNotFoundException();
+            }
             repository.deleteById(id);
+        } catch (BookNotFoundException ex) {
+            throw ex;
         } catch (Exception e) {
-            throw new Exception("Erro ao deletar", e);
+            throw new Exception(e);
         }
     }
 }

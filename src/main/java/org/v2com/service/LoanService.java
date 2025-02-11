@@ -5,20 +5,18 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.v2com.Enums.BookStatus;
 import org.v2com.Enums.LoanStatus;
-import org.v2com.Enums.ReserveStatus;
 import org.v2com.Enums.UserStatus;
 import org.v2com.dto.LoanDTO;
 import org.v2com.entity.BookEntity;
 import org.v2com.entity.LoanEntity;
 import org.v2com.entity.UserEntity;
+import org.v2com.exceptions.*;
 import org.v2com.repository.BookRepository;
 import org.v2com.repository.LoanRepository;
-import org.v2com.repository.ReserveRepository;
 import org.v2com.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,29 +35,33 @@ public class LoanService {
     @Inject
     UserRepository userRepository;
 
-    @Inject
-    ReserveRepository reserveRepository;
-
-
     public List<LoanDTO> getAllLoans() throws Exception {
         try {
             return loanRepository.getAllLoans().stream()
                     .map(LoanDTO::fromEntity)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new Exception("Erro ao buscar emprestimos", e);
+            throw new Exception(e);
         }
     }
 
     public LoanDTO getActiveLoanByBookId(UUID bookId) throws Exception {
         try {
-            LoanDTO loanDTO = LoanDTO.fromEntity(loanRepository.findActiveLoanByBookId(bookId));
-            if (loanDTO == null) {
-                throw new IllegalArgumentException("Emprestimo não encontrado");
+            BookEntity bookEntity = bookRepository.findById(bookId);
+            if (bookEntity == null) {
+                throw new BookNotFoundException();
             }
-            return LoanDTO.fromEntity(loanRepository.findActiveLoanByBookId(bookId));
+
+            LoanEntity loanEntity = loanRepository.findActiveLoanByBookId(bookId);
+
+            if (loanEntity == null) {
+                throw new LoanNotFoundException("");
+            }
+            return LoanDTO.fromEntity(loanEntity);
+        } catch (BookNotFoundException | LoanNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new Exception("Erro ao buscar emprestimo", e);
+            throw e;
         }
     }
 
@@ -67,25 +69,34 @@ public class LoanService {
         try {
             LoanEntity loanEntity = loanRepository.findLoanById(loanId);
             if(loanEntity == null){
-                throw new IllegalArgumentException("Emprestimo não encontrado.");
+                throw new LoanNotFoundException(loanId.toString());
             }
             return LoanDTO.fromEntity(loanEntity);
+        } catch (LoanNotFoundException le) {
+            throw le;
         } catch (Exception e) {
-            throw new Exception("Erro ao buscar emprestimo", e);
+            throw new Exception(e);
         }
     }
 
-    public List<LoanDTO> getActiveLoansByUserId(UUID userId) throws Exception {
+    public List<LoanDTO> getLoansByUserId(UUID userId) throws Exception {
         try {
-            List<LoanDTO> loanDTOS = loanRepository.findActiveLoanByUserId(userId).stream()
+            UserEntity userEntity = userRepository.findById(userId);
+            if(userEntity == null){
+                throw new  UserNotFoundException(userId.toString());
+            }
+            List<LoanDTO> loanDTOS = loanRepository.findLoanByUserId(userId).stream()
                     .map(LoanDTO::fromEntity)
                     .collect(Collectors.toList());
             if (loanDTOS.isEmpty()) {
-                throw new IllegalArgumentException("Nemhum emprestimo encontrado.");
+                throw new LoanNotFoundException("");
             }
             return loanDTOS;
+        } catch (UserNotFoundException
+                | LoanNotFoundException ex) {
+            throw ex;
         }catch (Exception e){
-            throw new Exception("Erro ao buscar emprestimos.", e);
+            throw new Exception(e);
         }
 
     }
@@ -97,16 +108,16 @@ public class LoanService {
             UserEntity userEntity = userRepository.findById(userId);
 
             if (bookEntity == null) {
-                throw new IllegalArgumentException("Livro não encontrado");
+                throw new BookNotFoundException();
             }
             if (bookEntity.getStatus() != BookStatus.AVAILABLE) {
-                throw new IllegalArgumentException("Livro indisponivel");
+                throw new BookUnavailableToLoanException(bookId.toString());
             }
             if (userEntity == null) {
-                throw new IllegalArgumentException("Usuário não encontrado");
+                throw new UserNotFoundException(userId.toString());
             }
             if (userEntity.getStatus() == UserStatus.INACTIVE) {
-                throw new IllegalArgumentException("Usuario inativo");
+                throw new UserInactiveException(userId.toString());
             }
 
             LoanEntity loanEntity = new LoanEntity();
@@ -120,8 +131,14 @@ public class LoanService {
             loanRepository.persist(loanEntity);
 
             return LoanDTO.fromEntity(loanEntity);
+
+        } catch (BookNotFoundException
+                 | BookUnavailableToLoanException
+                 | UserNotFoundException
+                 | UserInactiveException bo) {
+            throw bo;
         } catch (Exception e) {
-            throw new Exception("Erro ao fazer Emprestimo", e);
+            throw new Exception(e);
         }
     }
 
@@ -129,38 +146,41 @@ public class LoanService {
     public void endLoan(UUID loanId) throws Exception {
         try {
             LoanEntity loanEntity = loanRepository.findLoanById(loanId);
-            BookEntity bookEntity = bookRepository.findById(loanEntity.getBook_id());
             if (loanEntity == null) {
-                throw new IllegalArgumentException("Empréstimo não encontrado");
+                throw new LoanNotFoundException(loanId.toString());
             }
+            BookEntity bookEntity = bookRepository.findById(loanEntity.getBook_id());
             if (bookEntity == null) {
-                throw new IllegalArgumentException("Livro não encontrado");
+                throw new BookNotFoundException();
             }
 
             loanRepository.changeLoanStatus(loanEntity, LoanStatus.RETURNED);
             bookEntity.setStatus(BookStatus.AVAILABLE);
 
             loanRepository.persist(loanEntity);
+        } catch (LoanNotFoundException | BookNotFoundException le) {
+            throw le;
         } catch (Exception e) {
-            throw new Exception("Erro ao finalizar Emprestimo", e);
+            throw new Exception(e);
         }
     }
 
     @Transactional
-    public LoanEntity renewBookLoan(UUID laonId, int days) throws Exception {
+    public LoanEntity renewBookLoan(UUID loanId, int days) throws Exception {
         try {
-            LoanEntity loanEntity = loanRepository.findLoanById(laonId);
-            LocalDate dueDate = loanEntity.getDue_date().plusDays(days);
+            LoanEntity loanEntity = loanRepository.findLoanById(loanId);
             if (loanEntity == null) {
-                throw new IllegalArgumentException("Emprestimo não encontrado.");
+                throw new LoanNotFoundException(loanId.toString());
             }
+
+            LocalDate dueDate = loanEntity.getDue_date().plusDays(days);
             loanEntity.setDue_date(dueDate);
             loanRepository.update(loanEntity);
             return loanEntity;
+        } catch (LoanNotFoundException lo) {
+            throw lo;
         } catch (Exception e) {
-            throw new Exception("Erro ao finalizar Emprestimo", e);
+            throw new Exception(e);
         }
     }
-
-
 }

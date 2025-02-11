@@ -25,7 +25,10 @@ public class LoanRepository {
     }
 
     public LoanEntity findLoanById(UUID id) {
-        return entityManager.find(LoanEntity.class, id);
+        List<LoanEntity> loanEntities = entityManager.createQuery("SELECT l from LoanEntity l where l.id =:id", LoanEntity.class)
+                .setParameter("id", id)
+                .getResultList();
+        return loanEntities.isEmpty() ? null : loanEntities.get(0);
     }
 
     public void update(@Valid LoanEntity entity) {
@@ -47,19 +50,18 @@ public class LoanRepository {
     }
 
     public LoanEntity findActiveLoanByBookId(UUID bookId) {
-        LoanEntity result = entityManager.createQuery
+        List<LoanEntity> result = entityManager.createQuery
                         ("SELECT l FROM LoanEntity l WHERE l.book_id = :bookId AND l.status = :returned", LoanEntity.class)
                 .setParameter("bookId", bookId)
                 .setParameter("returned", LoanStatus.PENDING)
-                .getSingleResult();
-        return result;
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
     }
 
-    public List<LoanEntity> findActiveLoanByUserId(UUID user) {
+    public List<LoanEntity> findLoanByUserId(UUID user) {
         return entityManager.createQuery
-                        ("SELECT l FROM LoanEntity l WHERE l.user_id = :user AND l.status != :returned", LoanEntity.class)
+                        ("SELECT l FROM LoanEntity l WHERE l.user_id = :user", LoanEntity.class)
                 .setParameter("user", user)
-                .setParameter("returned", LoanStatus.RETURNED)
                 .getResultList();
     }
 }

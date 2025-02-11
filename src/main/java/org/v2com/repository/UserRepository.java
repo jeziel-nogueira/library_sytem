@@ -20,9 +20,10 @@ public class UserRepository {
     EntityManager entityManager;
 
     public UserEntity findByName(String name) {
-        return entityManager.createQuery("SELECT u FROM UserEntity u WHERE u.name = :username", UserEntity.class)
+        List<UserEntity> userEntities = entityManager.createQuery("SELECT u FROM UserEntity u WHERE u.name = :username", UserEntity.class)
                 .setParameter("username", name)
-                .getSingleResult();
+                .getResultList();
+        return userEntities.isEmpty() ? null : userEntities.get(0);
     }
 
     public UserEntity findById(UUID id){
