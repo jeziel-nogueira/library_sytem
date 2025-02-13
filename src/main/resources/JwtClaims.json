@@ -1,0 +1,13 @@
+{
+  "iss": "https://quarkus.io/using-jwt-rbac",
+  "jti": "a-123",
+  "sub": "jdoe-using-jwt-rbac",
+  "upn": "jdoe@quarkus.io",
+  "aud": "using-jwt-rbac",
+  "groups": [
+    "admin",
+    "Tester",
+    "Subscriber",
+    "user"
+  ]
+}

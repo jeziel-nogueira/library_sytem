@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.v2com.dto.UserDTO;
 import org.v2com.entity.UserEntity;
 import org.v2com.exceptions.UserNotFoundException;
+import org.v2com.infra.security.TokenService;
 import org.v2com.repository.UserRepository;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public class UserService {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    AuthService authService;
 
     @Transactional
     public List<UserDTO> listAllUsers() throws Exception {
@@ -63,6 +67,8 @@ public class UserService {
     }
 
     public UserDTO addUser(@Valid UserDTO userDTO) throws Exception {
+        String hash = authService.hashPassword(userDTO.getPassword());
+        userDTO.setPassword(hash);
         try {
             UserEntity userEntity = userDTO.toEntity();
             userRepository.persist(userEntity);

@@ -21,6 +21,7 @@ public class UserDTO {
     private String address;
     private String phone;
     private UserStatus status;
+    private String password;
 
     public static UserDTO fromEntity(UserEntity userEntity) {
         return new UserDTO(
@@ -29,7 +30,8 @@ public class UserDTO {
                 userEntity.getEmail(),
                 userEntity.getAddress(),
                 userEntity.getPhone(),
-                userEntity.getStatus()
+                userEntity.getStatus(),
+                userEntity.getPassword()
         );
     }
 
@@ -41,6 +43,7 @@ public class UserDTO {
         userEntity.setAddress(this.address);
         userEntity.setPhone(this.phone);
         userEntity.setStatus(this.status);
+        userEntity.setPassword(this.password);
         return userEntity;
     }
 }

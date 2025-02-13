@@ -1,6 +1,6 @@
 services:
   app:
-    image: quarkus/library-jvm:latest
+    image: quarkus/library-jvm:1.0.2-SNAPSHOT
     container_name: quarkus-app
     build: .
     ports:

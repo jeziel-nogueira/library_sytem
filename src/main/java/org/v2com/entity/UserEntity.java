@@ -2,11 +2,14 @@ package org.v2com.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.security.jpa.Password;
+import io.quarkus.security.jpa.PasswordType;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.v2com.Enums.UserStatus;
+//import org.v2com.providers.CustomPasswordProvider;
 
 import java.util.UUID;
 
@@ -39,6 +42,7 @@ public class UserEntity extends PanacheEntityBase {
     public UserStatus Status;
 
     @NotNull
+    //@Password(value = PasswordType.CUSTOM, provider = CustomPasswordProvider.class)
     public String password;
 
     @PrePersist

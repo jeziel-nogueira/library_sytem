@@ -9,7 +9,7 @@ import org.v2com.exceptions.*;
 
 import java.util.Set;
 
-@Provider
+//@Provider
 public class GlobalExceptionHandlerProvider implements ExceptionMapper<Throwable> {
 
     private static final Set<Class<?>> NOT_FOUND_EXCEPTIONS = Set.of(

@@ -1,6 +1,9 @@
 package org.v2com.controller;
 
 
+import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -11,12 +14,14 @@ import org.v2com.service.BookService;
 import java.util.UUID;
 
 @Path("/api/v1/book")
+@RequestScoped
 public class BookController {
     @Inject
     BookService bookService;
 
     @GET
     @Path("")
+    @RolesAllowed("Subscriber")
     public Response getAllBooks() throws Exception {
         return Response.ok(bookService.findAllBooks()).build();
     }
