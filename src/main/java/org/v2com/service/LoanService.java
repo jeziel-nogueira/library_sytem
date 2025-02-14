@@ -83,7 +83,7 @@ public class LoanService {
         try {
             UserEntity userEntity = userRepository.findById(userId);
             if(userEntity == null){
-                throw new  UserNotFoundException(userId.toString());
+                throw new  UserNotFoundException();
             }
             List<LoanDTO> loanDTOS = loanRepository.findLoanByUserId(userId).stream()
                     .map(LoanDTO::fromEntity)
@@ -114,7 +114,7 @@ public class LoanService {
                 throw new BookUnavailableToLoanException(bookId.toString());
             }
             if (userEntity == null) {
-                throw new UserNotFoundException(userId.toString());
+                throw new UserNotFoundException();
             }
             if (userEntity.getStatus() == UserStatus.INACTIVE) {
                 throw new UserInactiveException(userId.toString());
@@ -166,17 +166,18 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanEntity renewBookLoan(UUID loanId, int days) throws Exception {
+    public void renewBookLoan(LoanDTO loanDTO) throws Exception {
         try {
-            LoanEntity loanEntity = loanRepository.findLoanById(loanId);
+            LoanEntity loanEntity = loanRepository.findLoanById(loanDTO.getId());
             if (loanEntity == null) {
-                throw new LoanNotFoundException(loanId.toString());
+                throw new LoanNotFoundException(loanDTO.getId().toString());
             }
 
-            LocalDate dueDate = loanEntity.getDue_date().plusDays(days);
-            loanEntity.setDue_date(dueDate);
+            loanEntity.setLoan_date(loanDTO.getDueDate());
+            loanEntity.setStatus(loanDTO.getStatus());
+
             loanRepository.update(loanEntity);
-            return loanEntity;
+            LoanDTO.fromEntity(loanEntity);
         } catch (LoanNotFoundException lo) {
             throw lo;
         } catch (Exception e) {

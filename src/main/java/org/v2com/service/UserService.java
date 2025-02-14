@@ -42,7 +42,7 @@ public class UserService {
         try {
             UserEntity userEntity = userRepository.findById(id);
             if (userEntity == null) {
-                throw new UserNotFoundException(id.toString());
+                throw new UserNotFoundException();
             }
             return UserDTO.fromEntity(userEntity);
         } catch (UserNotFoundException e) {
@@ -56,7 +56,7 @@ public class UserService {
         try {
             UserEntity user = userRepository.findByName(name);
             if (user == null) {
-                throw new UserNotFoundException("");
+                throw new UserNotFoundException();
             }
             return UserDTO.fromEntity(user);
         }catch (UserNotFoundException e) {
@@ -84,7 +84,7 @@ public class UserService {
             UserEntity existingUser = userRepository.findById(userDTO.getId());
 
             if (existingUser == null) {
-                throw new UserNotFoundException("");
+                throw new UserNotFoundException();
             }
 
             existingUser.setName(userDTO.getName());
@@ -107,7 +107,7 @@ public class UserService {
             UserEntity existingUser = userRepository.findById(id);
 
             if (existingUser == null) {
-                throw new UserNotFoundException(id.toString());
+                throw new UserNotFoundException();
             }
             userRepository.deleteUserById(id);
         }catch (UserNotFoundException e) {

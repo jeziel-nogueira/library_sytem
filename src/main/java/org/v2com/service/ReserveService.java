@@ -107,7 +107,7 @@ public class ReserveService {
 
 
             if (userEntity == null) {
-                throw new UserNotFoundException(userId.toString());
+                throw new UserNotFoundException();
             }
             if (userEntity.getStatus() != UserStatus.ACTIVE) {
                 throw new UserInactiveException(userId.toString());
